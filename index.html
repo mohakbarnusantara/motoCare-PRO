@@ -13,39 +13,27 @@
         * { font-family: 'Urbanist', sans-serif; box-sizing: border-box; }
         body { background-color: #f8fafc; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Animasi Transisi Halaman */
         .page-section { display: none; width: 100%; height: 100%; padding: 30px; overflow-y: auto; animation: slideIn 0.3s ease-out; }
         .page-section.active { display: block; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Sidebar Styling */
         .sidebar-btn.active { background-color: #2563eb; color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
         .sidebar-btn:not(.active) { color: #94a3b8; }
         .sidebar-btn:not(.active):hover { background-color: #1e293b; color: #f8fafc; }
 
-        /* Badge Status */
         .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-antrian { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
         .status-proses { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .status-selesai { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-nonaktif { background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* PERBAIKAN BUG CETAK STRUK DI SINI */
         @media print {
             body * { visibility: hidden; }
             #invoice-print, #invoice-print * { visibility: visible !important; }
-            #invoice-print { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                padding: 20px; 
-                display: block !important; /* Paksa tampilkan blok */
-            }
+            #invoice-print { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; display: block !important; }
         }
     </style>
 </head>
@@ -100,11 +88,13 @@
 
     <main class="flex-1 relative bg-slate-50 overflow-hidden">
         
+        <!-- Dashboard Section -->
         <section id="dashboard" class="page-section active">
             <h2 class="text-3xl font-black text-slate-800 mb-8">Statistik Bengkel</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
                 <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                    <span class="text-slate-400 font-bold text-[10px] uppercase mb-1">Total Motor</span>
+                    <span class="text-slate-400 font-bold text-[10px] uppercase mb-1">Total Motor Servis</span>
                     <span class="text-4xl font-black text-slate-800" id="stat-motor">0</span>
                 </div>
                 <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
@@ -119,19 +109,54 @@
                     <span class="text-slate-400 font-bold text-[10px] uppercase mb-1">Selesai Servis</span>
                     <span class="text-4xl font-black text-green-600" id="stat-selesai">0</span>
                 </div>
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+                    <span class="text-slate-400 font-bold text-[10px] uppercase mb-1">Total Pembelian</span>
+                    <span class="text-4xl font-black text-emerald-500" id="stat-pembelian">0</span>
+                </div>
             </div>
             
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-50 flex justify-between items-center"><h3 class="font-bold text-slate-800 tracking-tight">Transaksi Terakhir</h3></div>
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-                        <tr><th class="px-6 py-4">Tgl</th><th class="px-6 py-4">Plat</th><th class="px-6 py-4">Pemilik</th><th class="px-6 py-4">Biaya</th><th class="px-6 py-4 text-center">Status</th></tr>
-                    </thead>
-                    <tbody id="table-recent-servis" class="text-sm font-medium"></tbody>
-                </table>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-blue-50/30">
+                        <h3 class="font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-tools text-blue-500"></i> Riwayat Servis Motor
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b">
+                                <tr>
+                                    <th class="px-6 py-4">Tgl</th>
+                                    <th class="px-6 py-4">Plat</th>
+                                    <th class="px-6 py-4 text-center">Pemilik</th> 
+                                    <th class="px-6 py-4">Biaya</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-recent-servis" class="text-sm font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-green-50/30">
+                        <h3 class="font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-cart-shopping text-green-500"></i> Riwayat Pembelian Langsung
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b">
+                                <tr><th class="px-6 py-4">Tgl</th><th class="px-6 py-4">Keterangan</th><th class="px-6 py-4">Total</th><th class="px-6 py-4 text-center">Aksi</th></tr>
+                            </thead>
+                            <tbody id="table-direct-purchase" class="text-sm font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
 
+        <!-- Data Motor Section -->
         <section id="motor" class="page-section">
             <h2 class="text-3xl font-black text-slate-800 mb-8">Data Master Motor</h2>
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -141,7 +166,7 @@
                         <input type="hidden" id="motor-id-edit">
                         <div class="space-y-4">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Plat Nomor Kendaraan</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Plat Nomor</label>
                                 <input type="text" id="motor-plat" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 uppercase font-bold text-slate-700" placeholder="DD 2510 NX">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
@@ -160,7 +185,7 @@
                                 <p id="err-nama" class="text-[10px] text-red-500 mt-1 font-bold hidden"><i class="fa-solid fa-circle-exclamation mr-1"></i> Nama tidak boleh mengandung angka!</p>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Tahun Kendaraan</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Tahun</label>
                                 <input type="number" id="motor-tahun" required class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500" placeholder="2024">
                             </div>
                             <div class="flex flex-col gap-3 pt-4">
@@ -181,14 +206,15 @@
             </div>
         </section>
 
+        <!-- Antrian Section -->
         <section id="antrian" class="page-section">
             <h2 class="text-3xl font-black text-slate-800 mb-8">Manajemen Antrian Servis</h2>
             <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-fit">
                     <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-blue-500"></i> Daftarkan Antrian Baru</h3>
                     <form onsubmit="app.handleAntrianSubmit(event)">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Pilih Motor Terdaftar</label>
-                        <select id="antrian-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-5 outline-none focus:border-blue-500 font-bold"></select>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Pilih Motor</label>
+                        <select id="antrian-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6 outline-none focus:ring-2 focus:ring-blue-500 font-bold appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat"></select>
                         <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Keluhan Pelanggan</label>
                         <textarea id="antrian-keluhan" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-6 outline-none focus:border-blue-500 h-32" placeholder="Ganti oli, rem blong, dll..."></textarea>
                         <button type="submit" class="w-full bg-slate-800 text-white font-black py-4 rounded-xl hover:bg-slate-900 shadow-xl transition-all">Masukkan ke Antrian</button>
@@ -201,6 +227,7 @@
             </div>
         </section>
 
+        <!-- Gudang Section -->
         <section id="stok" class="page-section">
             <h2 class="text-3xl font-black text-slate-800 mb-8">Gudang & Suku Cadang</h2>
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -227,48 +254,47 @@
                     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                                <tr><th class="px-6 py-4">Item Sparepart</th><th class="px-6 py-4 text-center">Stok Fisik</th><th class="px-6 py-4 text-right">Harga Satuan</th><th class="px-6 py-4 text-center">Aksi</th></tr>
+                                <tr><th class="px-6 py-4">Item Sparepart</th><th class="px-6 py-4 text-center">Stok</th><th class="px-6 py-4 text-right">Harga</th><th class="px-6 py-4 text-center">Aksi</th></tr>
                             </thead>
                             <tbody id="table-stok-data" class="text-sm font-medium"></tbody>
                         </table>
                     </div>
                 </div>
                 <div class="bg-slate-900 rounded-3xl p-8 text-white h-fit shadow-2xl relative overflow-hidden">
-                    <h3 class="font-bold text-blue-400 mb-6 border-b border-slate-700/50 pb-5 flex items-center gap-2 relative z-10"><i class="fa-solid fa-layer-group"></i> Riwayat Restok (Stack LIFO)</h3>
+                    <h3 class="font-bold text-blue-400 mb-6 border-b border-slate-700/50 pb-5 flex items-center gap-2 relative z-10"><i class="fa-solid fa-layer-group"></i> Riwayat Restok (LIFO)</h3>
                     <div id="stack-lifo-container" class="space-y-6 relative z-10"></div>
                 </div>
             </div>
         </section>
 
+        <!-- Kasir Section -->
         <section id="kasir" class="page-section">
             <h2 class="text-3xl font-black text-slate-800 mb-8">Penyelesaian Servis & Kasir</h2>
             <form onsubmit="app.handleTransaksiSubmit(event)">
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
                     <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-fit">
-                        
-                        <!-- FITUR BARU: Toggle Beli Suku Cadang Saja -->
                         <div class="flex items-center justify-between border-b pb-4 mb-6">
                             <h3 class="font-bold text-slate-800 flex items-center gap-3 text-sm uppercase tracking-widest">
                                 <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">1</span> Detail Servis
                             </h3>
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" id="kasir-parts-only" class="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500" onchange="app.toggleKasirMode()">
-                                <span class="text-[11px] font-bold text-slate-500">BELI SUKU CADANG SAJA</span>
+                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Beli Suku Cadang Saja</span>
                             </label>
                         </div>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Pilih Motor (Hanya Status "PROSES")</label>
-                                <select id="kasir-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none focus:border-blue-500 font-bold text-blue-600 transition-colors"></select>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Pilih Motor (Status PROSES)</label>
+                                <select id="kasir-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none focus:border-blue-500 font-bold text-blue-600 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%233b82f6%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:20px] bg-[right_1rem_center] bg-no-repeat"></select>
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase">Hasil Pengerjaan Mekanik</label>
-                                <textarea id="kasir-deskripsi" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none h-24 transition-colors" placeholder="Detail hasil servis..."></textarea>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">Hasil Pengerjaan</label>
+                                <textarea id="kasir-deskripsi" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none h-24" placeholder="Detail hasil servis..."></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-5">
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal</label><input type="date" id="kasir-tanggal" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none font-medium"></div>
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Biaya Jasa (Rp)</label><input type="number" id="kasir-jasa" value="0" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 font-black text-blue-600 text-lg outline-none transition-colors"></div>
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Biaya Jasa (Rp)</label><input type="number" id="kasir-jasa" value="0" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 font-black text-blue-600 text-lg outline-none"></div>
                             </div>
                         </div>
                     </div>
@@ -278,7 +304,7 @@
                                 <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px]">2</span> Keranjang Belanja
                             </h3>
                             <div class="flex gap-3 mb-6">
-                                <select id="kasir-pilih-part" class="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none"></select>
+                                <select id="kasir-pilih-part" class="flex-1 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E')] bg-[length:16px] bg-[right_0.8rem_center] bg-no-repeat"></select>
                                 <input type="number" id="kasir-qty" value="1" min="1" class="w-20 p-3.5 bg-slate-50 border border-slate-200 rounded-xl font-black text-center outline-none">
                                 <button type="button" onclick="app.tambahKeKeranjang()" class="bg-slate-800 text-white px-6 rounded-xl font-bold hover:bg-slate-900 active:scale-95 transition-all">Add</button>
                             </div>
@@ -312,16 +338,12 @@
         </div>
     </div>
 
-    <!-- AREA CETAK INVOICE -->
     <div id="invoice-print" class="hidden bg-white p-8 font-mono text-sm max-w-md mx-auto border border-dashed border-gray-300"></div>
 
     <script>
         /**
-         * =========================================
-         * OOP LOGIC: ENTITIES & ENCAPSULATION
-         * =========================================
+         * --- OOP CLASSES & ENCAPSULATION ---
          */
-
         class EntitasBase {
             constructor(id) { this.id = id || Date.now() + Math.floor(Math.random()*100); }
         }
@@ -334,7 +356,6 @@
                 this.tipe = tipe;
                 this.pemilik = pemilik;
                 this.tahun = tahun;
-                // Status Lifecycle: NON-AKTIF, ANTRIAN, PROSES, SELESAI
                 this.statusTerakhir = 'NON-AKTIF';
             }
         }
@@ -353,10 +374,11 @@
         }
 
         class AntrianItem {
-            constructor(motorId, keluhan) {
+            constructor(motorId, keluhan, nomor) {
                 this.id = Date.now();
                 this.motorId = motorId;
                 this.keluhan = keluhan;
+                this.nomor = nomor; 
                 this.status = 'ANTRIAN'; 
                 this.waktu = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
             }
@@ -381,42 +403,25 @@
                 this.jasa = parseInt(jasa);
                 this.parts = parts;
             }
-            hitungTotal() {
-                return this.jasa + this.parts.reduce((sum, p) => sum + p.subtotal, 0);
-            }
+            hitungTotal() { return this.jasa + this.parts.reduce((sum, p) => sum + p.subtotal, 0); }
         }
 
         /**
-         * =========================================
-         * CORE APP CONTROLLER
-         * =========================================
+         * --- APP SYSTEM / CONTROLLER ---
          */
         const app = {
-            motors: [],
-            parts: [],
-            antrian: [], 
-            restokStack: [], // LIFO Riwayat
-            riwayat: [],
-            cart: [],
-            isLogin: false,
+            motors: [], parts: [], antrian: [], restokStack: [], riwayat: [], cart: [], isLogin: false,
+            formatRp: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }),
 
             init() {
                 this.load();
                 ui.renderAll();
-                
-                // Validasi Regex: Pemilik hanya boleh huruf & spasi
                 document.getElementById('motor-pemilik').addEventListener('input', (e) => {
                     const regex = /^[a-zA-Z\s]*$/;
                     const err = document.getElementById('err-nama');
-                    if(!regex.test(e.target.value)) { 
-                        e.target.classList.add('border-red-500', 'text-red-500'); 
-                        err.classList.remove('hidden'); 
-                    } else { 
-                        e.target.classList.remove('border-red-500', 'text-red-500'); 
-                        err.classList.add('hidden'); 
-                    }
+                    if(!regex.test(e.target.value)) { e.target.classList.add('border-red-500'); err.classList.remove('hidden'); }
+                    else { e.target.classList.remove('border-red-500'); err.classList.add('hidden'); }
                 });
-
                 document.getElementById('kasir-jasa').addEventListener('input', () => ui.renderCart());
             },
 
@@ -429,29 +434,24 @@
                     document.getElementById('login-overlay').style.opacity = '0';
                     setTimeout(() => { document.getElementById('login-overlay').style.display = 'none'; }, 500);
                     this.refreshUI();
-                } else { alert("Login Gagal!"); }
+                } else alert("Username/Password Salah!");
             },
 
             logout() { location.reload(); },
 
-            // LOGIKA MOTOR (CRUD)
             handleMotorSubmit(e) {
                 e.preventDefault();
-                const id = document.getElementById('motor-id-edit').value;
-                const plat = document.getElementById('motor-plat').value;
-                const merk = document.getElementById('motor-merk').value;
-                const tipe = document.getElementById('motor-tipe').value;
-                const pemilik = document.getElementById('motor-pemilik').value;
-                const tahun = document.getElementById('motor-tahun').value;
-
-                if(!/^[a-zA-Z\s]*$/.test(pemilik)) return alert("Nama tidak boleh mengandung angka!");
+                const id = document.getElementById('motor-id-edit').value, plat = document.getElementById('motor-plat').value, merk = document.getElementById('motor-merk').value, tipe = document.getElementById('motor-tipe').value, pemilik = document.getElementById('motor-pemilik').value, tahun = document.getElementById('motor-tahun').value;
+                if(!/^[a-zA-Z\s]*$/.test(pemilik)) return alert("Nama pemilik dilarang angka!");
 
                 if(id) {
+                    if (this.motors.some(m => m.plat === plat.toUpperCase() && m.id !== id)) return alert("Plat Nomor sudah terdaftar!");
                     const idx = this.motors.findIndex(m => m.id == id);
                     const st = this.motors[idx].statusTerakhir;
                     this.motors[idx] = new Motor(plat, merk, tipe, pemilik, tahun, id);
                     this.motors[idx].statusTerakhir = st;
                 } else {
+                    if (this.motors.some(m => m.plat === plat.toUpperCase())) return alert("Plat Nomor ini sudah ada!");
                     this.motors.push(new Motor(plat, merk, tipe, pemilik, tahun));
                 }
                 this.save(); ui.resetMotorForm(); this.refreshUI();
@@ -470,60 +470,40 @@
                 document.getElementById('btn-cancel-motor').classList.remove('hidden');
             },
 
-            hapusMotor(id) {
-                if(confirm("Hapus data motor?")) { 
-                    this.motors = this.motors.filter(m => m.id != id); 
-                    this.save(); this.refreshUI(); 
-                }
-            },
+            hapusMotor(id) { if(confirm("Hapus data motor?")) { this.motors = this.motors.filter(m => m.id != id); this.save(); this.refreshUI(); } },
 
-            // ANTRIAN (BEBAS PILIH)
             handleAntrianSubmit(e) {
                 e.preventDefault();
-                const mId = document.getElementById('antrian-motor-id').value;
-                const kel = document.getElementById('antrian-keluhan').value;
+                const mId = document.getElementById('antrian-motor-id').value, kel = document.getElementById('antrian-keluhan').value;
+                if(this.antrian.find(a => a.motorId == mId && a.status != 'SELESAI')) return alert("Motor sudah dalam antrian!");
                 
-                if(this.antrian.find(a => a.motorId == mId && a.status != 'SELESAI')) return alert("Motor sudah di dalam antrian!");
-
-                this.antrian.push(new AntrianItem(mId, kel));
+                const nomorAntrian = this.antrian.length + 1;
+                this.antrian.push(new AntrianItem(mId, kel, nomorAntrian));
                 this.motors.find(x => x.id == mId).statusTerakhir = 'ANTRIAN';
                 this.save(); e.target.reset(); this.refreshUI();
             },
 
             setProses(antrianId) {
-                // Pilih motor manapun secara bebas untuk mulai dikerjakan
                 const item = this.antrian.find(a => a.id == antrianId);
                 item.status = 'PROSES';
                 this.motors.find(x => x.id == item.motorId).statusTerakhir = 'PROSES';
-                
                 this.save();
-                // Tetap di halaman antrian, jangan auto navigate ke kasir.
                 document.getElementById('kasir-motor-id').value = item.motorId;
                 document.getElementById('kasir-deskripsi').value = item.keluhan;
                 this.refreshUI();
             },
 
-            // GUDANG & LIFO (CRUD Suku Cadang Terintegrasi)
             handlePartSubmit() {
-                const id = document.getElementById('part-id-edit').value;
-                const n = document.getElementById('part-nama').value;
-                const s = document.getElementById('part-stok').value;
-                const h = document.getElementById('part-harga').value;
-                if(!n || !s || !h) return alert("Lengkapi data form suku cadang!");
-                
+                const id = document.getElementById('part-id-edit').value, n = document.getElementById('part-nama').value, s = document.getElementById('part-stok').value, h = document.getElementById('part-harga').value;
+                if(!n || !s || !h) return alert("Lengkapi form!");
                 if(id) {
-                    // Logika Edit Item
                     const idx = this.parts.findIndex(p => p.id == id);
-                    if(idx !== -1) {
-                        this.parts[idx] = new SukuCadang(n, s, h, id);
-                    }
+                    if(idx !== -1) this.parts[idx] = new SukuCadang(n, s, h, id);
                 } else {
-                    // Logika Tambah Baru
                     const item = new SukuCadang(n, s, h);
                     this.parts.push(item);
                     this.pushRestok(n, s);
                 }
-
                 this.save(); ui.resetPartForm(); this.refreshUI();
             },
 
@@ -534,24 +514,16 @@
                 document.getElementById('part-nama').value = p.nama;
                 document.getElementById('part-stok').value = p.stok;
                 document.getElementById('part-harga').value = p.harga;
-                
                 document.getElementById('btn-save-part').innerText = "Update";
                 document.getElementById('btn-cancel-part').classList.remove('hidden');
             },
 
-            hapusPart(id) {
-                if(confirm("Hapus item suku cadang ini secara permanen dari sistem?")) {
-                    this.parts = this.parts.filter(p => p.id != id);
-                    this.save(); this.refreshUI();
-                }
-            },
+            hapusPart(id) { if(confirm("Hapus item?")) { this.parts = this.parts.filter(p => p.id != id); this.save(); this.refreshUI(); } },
 
             prosesRestok() {
-                const id = document.getElementById('restok-id').value;
-                const qty = document.getElementById('restok-qty').value;
+                const id = document.getElementById('restok-id').value, qty = document.getElementById('restok-qty').value;
                 const p = this.parts.find(x => x.id == id);
-                p.tambah(qty);
-                this.pushRestok(p.nama, qty);
+                p.tambah(qty); this.pushRestok(p.nama, qty);
                 this.save(); ui.closeStokModal(); this.refreshUI();
             },
 
@@ -560,322 +532,161 @@
                 if(this.restokStack.length > 8) this.restokStack.shift();
             },
 
-            // LOGIKA TOGGLE KASIR (FITUR BARU)
             toggleKasirMode() {
-                const isPartsOnly = document.getElementById('kasir-parts-only').checked;
-                const motorSelect = document.getElementById('kasir-motor-id');
-                const deskripsiArea = document.getElementById('kasir-deskripsi');
-                const jasaInput = document.getElementById('kasir-jasa');
-
-                if(isPartsOnly) {
-                    motorSelect.removeAttribute('required');
-                    motorSelect.disabled = true;
-                    motorSelect.value = '';
-                    
-                    deskripsiArea.removeAttribute('required');
-                    deskripsiArea.disabled = true;
-                    deskripsiArea.value = 'Pembelian Suku Cadang Langsung (Tanpa Jasa Servis)';
-                    
-                    jasaInput.disabled = true;
-                    jasaInput.value = 0;
-                    
-                    // Styling nonaktif visual
-                    motorSelect.classList.add('bg-slate-200', 'text-slate-400');
-                    deskripsiArea.classList.add('bg-slate-200', 'text-slate-400');
-                    jasaInput.classList.add('bg-slate-200', 'text-slate-400');
+                const isP = document.getElementById('kasir-parts-only').checked, mS = document.getElementById('kasir-motor-id'), dS = document.getElementById('kasir-deskripsi'), jI = document.getElementById('kasir-jasa');
+                if(isP) {
+                    mS.removeAttribute('required'); mS.disabled = true; mS.value = ''; mS.classList.add('bg-slate-200');
+                    dS.removeAttribute('required'); dS.disabled = true; dS.value = 'Pembelian Langsung'; dS.classList.add('bg-slate-200');
+                    jI.disabled = true; jI.value = 0; jI.classList.add('bg-slate-200');
                 } else {
-                    motorSelect.setAttribute('required', 'true');
-                    motorSelect.disabled = false;
-                    
-                    deskripsiArea.setAttribute('required', 'true');
-                    deskripsiArea.disabled = false;
-                    deskripsiArea.value = '';
-                    
-                    jasaInput.disabled = false;
-                    
-                    // Kembalikan style
-                    motorSelect.classList.remove('bg-slate-200', 'text-slate-400');
-                    deskripsiArea.classList.remove('bg-slate-200', 'text-slate-400');
-                    jasaInput.classList.remove('bg-slate-200', 'text-slate-400');
+                    mS.setAttribute('required', 'true'); mS.disabled = false; mS.classList.remove('bg-slate-200');
+                    dS.setAttribute('required', 'true'); dS.disabled = false; dS.value = ''; dS.classList.remove('bg-slate-200');
+                    jI.disabled = false; jI.classList.remove('bg-slate-200');
                 }
                 ui.renderCart();
             },
 
-            // KERANJANG PINTAR (Merge & Delete)
             tambahKeKeranjang() {
-                const id = document.getElementById('kasir-pilih-part').value;
-                const qty = parseInt(document.getElementById('kasir-qty').value);
+                const id = document.getElementById('kasir-pilih-part').value, qty = parseInt(document.getElementById('kasir-qty').value);
                 if(!id) return;
-
-                const pFisik = this.parts.find(x => x.id == id);
-                const existing = this.cart.find(c => c.id == id);
-                const totalMinta = existing ? (existing.qty + qty) : qty;
-
-                if(pFisik.stok < totalMinta) return alert("Stok gudang tidak cukup!");
-
-                if(existing) { 
-                    existing.qty += qty; // Merge Logic
-                } else { 
-                    this.cart.push(new ItemKeranjang(pFisik.id, pFisik.nama, qty, pFisik.harga)); 
-                }
+                const pF = this.parts.find(x => x.id == id), ex = this.cart.find(c => c.id == id), tot = ex ? (ex.qty + qty) : qty;
+                if(pF.stok < tot) return alert("Stok kurang!");
+                if(ex) { ex.qty += qty; } else { this.cart.push(new ItemKeranjang(pF.id, pF.nama, qty, pF.harga)); }
                 ui.renderCart();
             },
 
-            hapusItemCart(id) {
-                this.cart = this.cart.filter(c => c.id != id); // Hapus per item
-                ui.renderCart();
-            },
+            hapusItemCart(id) { this.cart = this.cart.filter(c => c.id != id); ui.renderCart(); },
 
             handleTransaksiSubmit(e) {
                 e.preventDefault();
-                const isPartsOnly = document.getElementById('kasir-parts-only').checked;
-
-                const mId = document.getElementById('kasir-motor-id').value;
-                const tgl = document.getElementById('kasir-tanggal').value;
-                const dsk = document.getElementById('kasir-deskripsi').value;
-                const jsa = document.getElementById('kasir-jasa').value;
-                
-                if(!isPartsOnly && !mId) return alert("Pilih motor status PROSES!");
-                if(this.cart.length === 0 && jsa == 0) return alert("Keranjang Kosong & Jasa Rp0.");
+                const isP = document.getElementById('kasir-parts-only').checked, mId = document.getElementById('kasir-motor-id').value, tgl = document.getElementById('kasir-tanggal').value, dsk = document.getElementById('kasir-deskripsi').value, jsa = document.getElementById('kasir-jasa').value;
+                if(!isP && !mId) return alert("Pilih motor!");
+                if(this.cart.length === 0 && jsa == 0) return alert("Kosong!");
 
                 let m;
-                if (isPartsOnly) {
-                    // Buat Objek Motor Sementara jika Beli Langsung
-                    m = new Motor('-', '-', '-', 'Pelanggan Umum', '-');
-                } else {
+                if (isP) { m = new Motor('-', '-', '-', 'Pelanggan Umum', '-'); }
+                else {
                     m = this.motors.find(x => x.id == mId);
-                    // Update Status Akhir: PROSES -> SELESAI
-                    const qItem = this.antrian.find(a => a.motorId == mId && a.status == 'PROSES');
-                    if(qItem) qItem.status = 'SELESAI';
+                    const qI = this.antrian.find(a => a.motorId == mId && a.status == 'PROSES');
+                    if(qI) qI.status = 'SELESAI';
                     m.statusTerakhir = 'SELESAI';
                 }
-                
-                // Potong stok real dari gudang (Encapsulation)
-                this.cart.forEach(c => {
-                    this.parts.find(x => x.id == c.id).kurang(c.qty);
-                });
-
+                this.cart.forEach(c => this.parts.find(x => x.id == c.id).kurang(c.qty));
                 const trx = new TransaksiServis(m, tgl, dsk, jsa, [...this.cart]);
-                this.riwayat.unshift(trx);
-                this.cart = [];
-                this.save(); 
-                e.target.reset(); 
-                
-                // Reset mode form kasir
-                document.getElementById('kasir-parts-only').checked = false;
-                this.toggleKasirMode();
-
-                this.refreshUI();
-                ui.printStruk(trx);
-                ui.nav('dashboard');
+                this.riwayat.unshift(trx); this.cart = []; this.save(); e.target.reset(); document.getElementById('kasir-parts-only').checked = false; this.toggleKasirMode(); this.refreshUI(); ui.printStruk(trx); ui.nav('dashboard');
             },
+
+            cetakUlang(id) { const tr = this.riwayat.find(r => r.id == id); if(tr) ui.printStruk(tr); },
 
             refreshUI() { ui.renderAll(); },
-
             save() {
-                localStorage.setItem('m_motors_v4', JSON.stringify(this.motors));
-                localStorage.setItem('m_parts_v4', JSON.stringify(this.parts));
-                localStorage.setItem('m_queue_v4', JSON.stringify(this.antrian));
-                localStorage.setItem('m_stack_v4', JSON.stringify(this.restokStack));
-                localStorage.setItem('m_trx_v4', JSON.stringify(this.riwayat));
+                localStorage.setItem('m_motors_v4_p1', JSON.stringify(this.motors));
+                localStorage.setItem('m_parts_v4_p1', JSON.stringify(this.parts));
+                localStorage.setItem('m_queue_v4_p1', JSON.stringify(this.antrian));
+                localStorage.setItem('m_stack_v4_p1', JSON.stringify(this.restokStack));
+                localStorage.setItem('m_trx_v4_p1', JSON.stringify(this.riwayat));
             },
-
             load() {
-                const m = JSON.parse(localStorage.getItem('m_motors_v4')) || [];
+                const m = JSON.parse(localStorage.getItem('m_motors_v4_p1')) || [];
                 this.motors = m.map(x => { const o = new Motor(x.plat, x.merk, x.tipe, x.pemilik, x.tahun, x.id); o.statusTerakhir = x.statusTerakhir; return o; });
-                const p = JSON.parse(localStorage.getItem('m_parts_v4')) || [];
+                const p = JSON.parse(localStorage.getItem('m_parts_v4_p1')) || [];
                 this.parts = p.map(x => new SukuCadang(x.nama, x._stok, x._harga, x.id));
-                this.antrian = JSON.parse(localStorage.getItem('m_queue_v4')) || [];
-                this.restokStack = JSON.parse(localStorage.getItem('m_stack_v4')) || [];
-                const r = JSON.parse(localStorage.getItem('m_trx_v4')) || [];
-                this.riwayat = r.map(x => {
-                    const c = x.parts.map(cp => new ItemKeranjang(cp.id, cp.nama, cp.qty, cp.harga));
-                    return new TransaksiServis(x.motor, x.tgl, x.desk, x.jasa, c, x.id);
-                });
+                this.antrian = JSON.parse(localStorage.getItem('m_queue_v4_p1')) || [];
+                this.restokStack = JSON.parse(localStorage.getItem('m_stack_v4_p1')) || [];
+                const r = JSON.parse(localStorage.getItem('m_trx_v4_p1')) || [];
+                this.riwayat = r.map(x => { const c = x.parts.map(cp => new ItemKeranjang(cp.id, cp.nama, cp.qty, cp.harga)); return new TransaksiServis(x.motor, x.tgl, x.desk, x.jasa, c, x.id); });
             }
         };
 
-        /**
-         * =========================================
-         * VIEW ENGINE (UI)
-         * =========================================
-         */
         const ui = {
             nav(id) {
                 document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
-                document.querySelectorAll('.sidebar-btn').forEach(b => {
-                    b.classList.remove('active');
-                    if(b.dataset.id === id) b.classList.add('active');
-                });
-                if(id === 'kasir') {
-                    document.getElementById('kasir-tanggal').valueAsDate = new Date();
-                }
+                document.querySelectorAll('.sidebar-btn').forEach(b => { b.classList.remove('active'); if(b.dataset.id === id) b.classList.add('active'); });
                 app.refreshUI();
             },
-
-            renderAll() {
-                this.renderDash();
-                this.renderMotors();
-                this.renderAntrian();
-                this.renderStok();
-                this.renderSelects();
-                this.renderCart();
-            },
-
+            renderAll() { this.renderDash(); this.renderMotors(); this.renderAntrian(); this.renderStok(); this.renderSelects(); this.renderCart(); },
             renderDash() {
-                document.getElementById('stat-motor').innerText = app.motors.length;
+                const sH = app.riwayat.filter(r => r.motor.plat !== '-');
+                const dH = app.riwayat.filter(r => r.motor.plat === '-');
+                const uM = new Set(sH.map(r => r.motor.plat));
+                document.getElementById('stat-motor').innerText = uM.size;
                 document.getElementById('stat-antrian').innerText = app.antrian.filter(a=>a.status === 'ANTRIAN').length;
                 document.getElementById('stat-proses').innerText = app.antrian.filter(a=>a.status === 'PROSES').length;
-                document.getElementById('stat-selesai').innerText = app.riwayat.length;
+                document.getElementById('stat-selesai').innerText = sH.length;
+                document.getElementById('stat-pembelian').innerText = dH.length;
 
-                const tb = document.getElementById('table-recent-servis'); tb.innerHTML = '';
-                if(app.riwayat.length === 0) tb.innerHTML = '<tr><td colspan="5" class="text-center py-6 italic text-slate-300">Belum ada aktivitas.</td></tr>';
-                app.riwayat.slice(0,5).forEach(r => {
-                    const platPrint = r.motor.plat === '-' ? 'Beli Langsung' : r.motor.plat;
-                    tb.innerHTML += `<tr class="border-b hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4">${r.tgl}</td>
-                        <td class="px-6 py-4 font-black text-slate-700">${platPrint}</td>
-                        <td class="px-6 py-4 font-bold text-slate-500">${r.motor.pemilik}</td>
-                        <td class="px-6 py-4 font-black text-blue-600">Rp ${r.hitungTotal().toLocaleString('id-ID')}</td>
-                        <td class="px-6 py-4 text-center"><span class="status-badge status-selesai">SELESAI</span></td>
-                    </tr>`;
+                const tbS = document.getElementById('table-recent-servis'); tbS.innerHTML = '';
+                if(sH.length === 0) tbS.innerHTML = '<tr><td colspan="5" class="text-center py-6 italic">Kosong</td></tr>';
+                sH.slice(0,10).forEach(r => {
+                    tbS.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4">${r.tgl}</td><td class="px-6 py-4 font-black uppercase">${r.motor.plat}</td><td class="px-6 py-4 font-bold text-slate-500 capitalize text-center">${r.motor.pemilik}</td><td class="px-6 py-4 font-black text-blue-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-blue-500"><i class="fa-solid fa-print"></i></button></td></tr>`;
+                });
+
+                const tbD = document.getElementById('table-direct-purchase'); tbD.innerHTML = '';
+                if(dH.length === 0) tbD.innerHTML = '<tr><td colspan="4" class="text-center py-6 italic">Kosong</td></tr>';
+                dH.slice(0,10).forEach(r => {
+                    const iN = r.parts.map(p => p.nama).join(', ');
+                    tbD.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 text-[11px]">${r.tgl}</td><td class="px-6 py-4 max-w-[200px] truncate">${iN}</td><td class="px-6 py-4 font-black text-emerald-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-emerald-500"><i class="fa-solid fa-print"></i></button></td></tr>`;
                 });
             },
-
             renderMotors() {
                 const tb = document.getElementById('table-motor-data'); tb.innerHTML = '';
-                if(app.motors.length === 0) tb.innerHTML = '<tr><td colspan="5" class="text-center py-10 italic text-slate-300">Data motor kosong.</td></tr>';
                 app.motors.forEach(m => {
-                    const stCls = m.statusTerakhir === 'ANTRIAN' ? 'status-antrian' : (m.statusTerakhir === 'PROSES' ? 'status-proses' : (m.statusTerakhir === 'SELESAI' ? 'status-selesai' : 'status-nonaktif'));
-                    tb.innerHTML += `<tr class="border-b hover:bg-slate-50">
-                        <td class="px-6 py-4 font-black text-slate-800">${m.plat}</td>
-                        <td class="px-6 py-4 font-bold text-slate-600">${m.merk} <span class="font-normal text-slate-400">${m.tipe}</span></td>
-                        <td class="px-6 py-4">${m.pemilik}</td>
-                        <td class="px-6 py-4 text-center"><span class="status-badge ${stCls}">${m.statusTerakhir}</span></td>
-                        <td class="px-6 py-4 text-center flex gap-2 justify-center">
-                            <button onclick="app.editMotor('${m.id}')" class="text-blue-500 hover:text-white bg-blue-50 hover:bg-blue-500 w-8 h-8 rounded-lg transition-all" title="Edit Data"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="app.hapusMotor('${m.id}')" class="text-red-500 hover:text-white bg-red-50 hover:bg-red-500 w-8 h-8 rounded-lg transition-all" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                    const sc = m.statusTerakhir === 'ANTRIAN' ? 'status-antrian' : (m.statusTerakhir === 'PROSES' ? 'status-proses' : (m.statusTerakhir === 'SELESAI' ? 'status-selesai' : 'status-nonaktif'));
+                    tb.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 font-black uppercase">${m.plat}</td><td class="px-6 py-4 font-bold text-slate-600">${m.merk} <span class="font-normal text-slate-400">${m.tipe}</span></td><td class="px-6 py-4 capitalize">${m.pemilik}</td><td class="px-6 py-4 text-center"><span class="status-badge ${sc}">${m.statusTerakhir}</span></td><td class="px-6 py-4 text-center flex gap-2 justify-center"><button onclick="app.editMotor('${m.id}')" class="text-blue-500 hover:scale-110"><i class="fa-solid fa-pen"></i></button><button onclick="app.hapusMotor('${m.id}')" class="text-red-500 hover:scale-110"><i class="fa-solid fa-trash"></i></button></td></tr>`;
                 });
             },
-
             renderAntrian() {
                 const c = document.getElementById('list-antrian-container'); c.innerHTML = '';
                 const a = app.antrian.filter(x => x.status != 'SELESAI');
-                if(a.length === 0) c.innerHTML = `<p class="text-slate-400 italic py-10 text-center bg-white rounded-3xl border-2 border-dashed">Antrian kosong.</p>`;
+                if(a.length === 0) c.innerHTML = `<p class="text-slate-400 italic py-10 text-center bg-white rounded-3xl">Kosong.</p>`;
                 a.forEach(node => {
-                    const m = app.motors.find(x => x.id == node.motorId);
-                    const isPr = node.status === 'PROSES';
-                    c.innerHTML += `
-                        <div class="bg-white p-5 rounded-2xl border flex justify-between items-center transition-all ${isPr ? 'border-blue-300 ring-4 ring-blue-50' : 'border-slate-100 shadow-sm'}">
-                            <div>
-                                <div class="flex items-center gap-3 mb-1"><span class="font-black text-lg text-slate-800">${m ? m.plat : '??'}</span><span class="status-badge ${isPr ? 'status-proses' : 'status-antrian'}">${node.status}</span></div>
-                                <p class="text-xs text-slate-500 font-bold mb-2">Pemilik: ${m ? m.pemilik : '??'} (${node.waktu})</p>
-                                <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 italic">"${node.keluhan}"</p>
-                            </div>
-                            <div>
-                                ${!isPr ? `<button onclick="app.setProses('${node.id}')" class="bg-blue-600 text-white px-5 py-3 rounded-xl text-xs font-black shadow-lg shadow-blue-200 hover:scale-105 active:scale-95 transition-all">KERJAKAN</button>` : `<i class="fa-solid fa-spinner animate-spin text-blue-500 text-2xl mr-4"></i>`}
-                            </div>
-                        </div>`;
+                    const m = app.motors.find(x => x.id == node.motorId), pr = node.status === 'PROSES';
+                    c.innerHTML += `<div class="bg-white p-5 rounded-2xl border flex justify-between items-center ${pr ? 'border-blue-300 ring-4 ring-blue-50' : 'border-slate-100 shadow-sm'}"><div class="flex items-start gap-4"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-slate-400 shrink-0 text-sm">#${node.nomor.toString().padStart(2, '0')}</div><div><div class="flex items-center gap-3 mb-1"><span class="font-black text-lg text-slate-800 uppercase">${m ? m.plat : '??'}</span><span class="status-badge ${pr ? 'status-proses' : 'status-antrian'}">${node.status}</span></div><p class="text-xs text-slate-500 font-bold mb-2">Pemilik: ${m ? m.pemilik : '??'} (${node.waktu})</p><p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border italic">"${node.keluhan}"</p></div></div><div>${!pr ? `<button onclick="app.setProses('${node.id}')" class="bg-blue-600 text-white px-5 py-3 rounded-xl text-xs font-black shadow-lg">KERJAKAN</button>` : `<i class="fa-solid fa-spinner animate-spin text-blue-500 text-2xl mr-4"></i>`}</div></div>`;
                 });
             },
-
             renderStok() {
                 const tb = document.getElementById('table-stok-data'); tb.innerHTML = '';
-                if(app.parts.length === 0) tb.innerHTML = `<tr><td colspan="4" class="text-center py-6 italic text-slate-400">Belum ada master barang.</td></tr>`;
-                
                 app.parts.forEach(p => {
-                    const low = p.stok < 5;
-                    tb.innerHTML += `<tr class="border-b hover:bg-slate-50 transition-all">
-                        <td class="px-6 py-4 font-bold text-slate-700">${p.nama}</td>
-                        <td class="px-6 py-4 text-center font-black ${low ? 'text-red-500 bg-red-50 rounded-xl' : 'text-slate-800'}">${p.stok}</td>
-                        <td class="px-6 py-4 text-right font-bold text-blue-600">Rp ${p.harga.toLocaleString('id-ID')}</td>
-                        <td class="px-6 py-4 text-center flex justify-center gap-2">
-                            <button onclick="app.editPart('${p.id}')" class="text-blue-500 bg-blue-50 hover:bg-blue-600 hover:text-white w-8 h-8 rounded-lg text-xs font-black transition-all shadow-sm" title="Edit Info"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="ui.openStokModal('${p.id}','${p.nama}')" class="text-green-600 bg-green-50 hover:bg-green-600 hover:text-white w-8 h-8 rounded-lg text-xs font-black transition-all shadow-sm" title="Restok (Tambah Qty)"><i class="fa-solid fa-plus"></i></button>
-                            <button onclick="app.hapusPart('${p.id}')" class="text-red-500 bg-red-50 hover:bg-red-600 hover:text-white w-8 h-8 rounded-lg text-xs font-black transition-all shadow-sm" title="Hapus Permanen"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                    const lw = p.stok < 5;
+                    tb.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 font-bold text-slate-700">${p.nama}</td><td class="px-6 py-4 text-center font-black ${lw ? 'text-red-500 bg-red-50 rounded-xl' : 'text-slate-800'}">${p.stok}</td><td class="px-6 py-4 text-right font-bold text-blue-600">${app.formatRp.format(p.harga)}</td><td class="px-6 py-4 text-center flex justify-center gap-2"><button onclick="app.editPart('${p.id}')" class="text-blue-500 hover:scale-110"><i class="fa-solid fa-pen"></i></button><button onclick="ui.openStokModal('${p.id}','${p.nama}')" class="text-green-600 hover:scale-110"><i class="fa-solid fa-plus"></i></button><button onclick="app.hapusPart('${p.id}')" class="text-red-500 hover:scale-110"><i class="fa-solid fa-trash"></i></button></td></tr>`;
                 });
                 const lf = document.getElementById('stack-lifo-container'); lf.innerHTML = '';
-                [...app.restokStack].reverse().forEach(x => { lf.innerHTML += `<div class="relative pl-6 border-l-2 border-slate-700/50 pb-4 last:pb-0 group"><div class="absolute -left-[7px] top-1 w-3 h-3 bg-blue-400 rounded-full border-2 border-slate-900 group-hover:bg-green-400 transition-colors"></div><span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">${x.waktu}</span><span class="text-sm font-black text-blue-300 group-hover:text-white">+${x.qty} ${x.nama}</span></div>`; });
+                [...app.restokStack].reverse().forEach(x => { lf.innerHTML += `<div class="relative pl-6 border-l-2 border-slate-700/50 pb-4 group"><div class="absolute -left-[7px] top-1 w-3 h-3 bg-blue-400 rounded-full border-2 border-slate-900"></div><span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">${x.waktu}</span><span class="text-sm font-black text-blue-200">+${x.qty} ${x.nama}</span></div>`; });
             },
-
             renderSelects() {
                 const sa = document.getElementById('antrian-motor-id'); sa.innerHTML = '<option value="">-- Pilih Motor --</option>';
                 app.motors.forEach(m => sa.innerHTML += `<option value="${m.id}">${m.plat} (${m.pemilik})</option>`);
                 
-                const sk = document.getElementById('kasir-motor-id'); sk.innerHTML = '<option value="">-- Pilih Motor Dalam Proses --</option>';
-                app.antrian.filter(a => a.status === 'PROSES').forEach(node => {
-                    const m = app.motors.find(x => x.id == node.motorId);
-                    sk.innerHTML += `<option value="${m.id}">${m.plat} - ${m.pemilik}</option>`;
+                // --- MODIFIKASI: Tampilkan ID Antrian di Kasir ---
+                const sk = document.getElementById('kasir-motor-id'); sk.innerHTML = '<option value="">-- Pilih Motor Proses --</option>';
+                app.antrian.filter(a => a.status === 'PROSES').forEach(node => { 
+                    const m = app.motors.find(x => x.id == node.motorId); 
+                    const antrianLabel = `#${node.nomor.toString().padStart(2, '0')}`;
+                    sk.innerHTML += `<option value="${m.id}">${antrianLabel} | ${m.plat} - ${m.pemilik}</option>`; 
                 });
 
-                const sp = document.getElementById('kasir-pilih-part'); sp.innerHTML = '<option value="">-- Pilih Suku Cadang --</option>';
-                app.parts.forEach(p => sp.innerHTML += `<option value="${p.id}">${p.nama} (Rp ${p.harga.toLocaleString('id-ID')})</option>`);
+                const sp = document.getElementById('kasir-pilih-part'); sp.innerHTML = '<option value="">-- Cari Suku Cadang --</option>';
+                app.parts.forEach(p => sp.innerHTML += `<option value="${p.id}">${p.nama} (${app.formatRp.format(p.harga)})</option>`);
             },
-
             renderCart() {
                 const c = document.getElementById('cart-container'); c.innerHTML = '';
-                if(app.cart.length === 0) c.innerHTML = `<p class="text-center text-slate-300 py-10 italic text-sm">Keranjang kosong.</p>`;
-                app.cart.forEach(item => {
-                    c.innerHTML += `<div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-2"><div><span class="font-bold text-slate-700 text-sm block">${item.nama}</span><span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-black">x${item.qty} Pcs</span></div><div class="flex items-center gap-4"><span class="font-black text-slate-800">Rp ${item.subtotal.toLocaleString('id-ID')}</span><button type="button" onclick="app.hapusItemCart('${item.id}')" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-xl transition-all"><i class="fa-solid fa-trash"></i></button></div></div>`;
-                });
+                if(app.cart.length === 0) c.innerHTML = `<p class="text-center text-slate-300 py-10 italic">Kosong.</p>`;
+                app.cart.forEach(it => { c.innerHTML += `<div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 shadow-sm mb-2"><div><span class="font-bold text-slate-700 text-sm block">${it.nama}</span><span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-black">x${it.qty}</span></div><div class="flex items-center gap-4"><span class="font-black text-slate-800">${app.formatRp.format(it.subtotal)}</span><button onclick="app.hapusItemCart('${it.id}')" class="text-red-400 hover:bg-red-500 hover:text-white p-2 rounded-xl"><i class="fa-solid fa-trash"></i></button></div></div>`; });
                 let t = app.cart.reduce((s,i)=>s+i.subtotal, 0) + parseInt(document.getElementById('kasir-jasa').value || 0);
-                document.getElementById('kasir-total-display').innerText = `Rp ${t.toLocaleString('id-ID')}`;
+                document.getElementById('kasir-total-display').innerText = app.formatRp.format(t);
             },
-
-            resetMotorForm() { document.getElementById('form-motor').reset(); document.getElementById('motor-id-edit').value = ''; document.getElementById('motor-form-title').innerText = "Tambah Motor Baru"; document.getElementById('btn-save-motor').innerText = "Simpan Data"; document.getElementById('btn-cancel-motor').classList.add('hidden'); document.getElementById('motor-pemilik').classList.remove('border-red-500'); document.getElementById('err-nama').classList.add('hidden'); },
+            resetMotorForm() { document.getElementById('form-motor').reset(); document.getElementById('motor-id-edit').value = ''; document.getElementById('motor-form-title').innerText = "Tambah Motor Baru"; document.getElementById('btn-save-motor').innerText = "Simpan Data"; document.getElementById('btn-cancel-motor').classList.add('hidden'); },
             resetPartForm() { document.getElementById('part-id-edit').value = ''; document.getElementById('part-nama').value = ''; document.getElementById('part-stok').value = ''; document.getElementById('part-harga').value = ''; document.getElementById('btn-save-part').innerText = "Tambah"; document.getElementById('btn-cancel-part').classList.add('hidden'); },
             openStokModal(id, nm) { document.getElementById('restok-id').value = id; document.getElementById('restok-label').innerText = nm; document.getElementById('modal-stok').classList.replace('hidden','flex'); },
             closeStokModal() { document.getElementById('modal-stok').classList.replace('flex','hidden'); },
-
             printStruk(tr) {
                 const a = document.getElementById('invoice-print'); let it = '';
-                const isPartsOnly = tr.motor.plat === '-';
-
-                tr.parts.forEach(p => it += `<tr style="border-bottom:1px dashed #ccc;"><td style="padding:6px 0;">${p.nama} <br><span style="font-size:10px; color:#64748b;">x${p.qty} Pcs</span></td><td style="text-align:right; font-weight:bold;">Rp ${p.subtotal.toLocaleString('id-ID')}</td></tr>`);
-                
-                let headerHTML = '';
-                if(isPartsOnly) {
-                    headerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>TGL:</span> <b>${tr.tgl}</b></div>
-                                  <div style="display:flex; justify-content:space-between;"><span>PELANGGAN:</span> <b>UMUM (Pembelian Langsung)</b></div>`;
-                } else {
-                    headerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>TGL:</span> <b>${tr.tgl}</b></div>
-                                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>PLAT:</span> <b>${tr.motor.plat} (${tr.motor.merk})</b></div>
-                                  <div style="display:flex; justify-content:space-between;"><span>NAMA:</span> <b>${tr.motor.pemilik}</b></div>`;
-                }
-
-                let jasaHTML = isPartsOnly ? '' : `<tr style="border-bottom:1px solid #000;"><td style="padding:6px 0;">Jasa Mekanik: <br><span style="font-size:10px; color:#64748b;">${tr.desk}</span></td><td style="text-align:right; font-weight:bold; vertical-align:top; padding-top:6px;">Rp ${tr.jasa.toLocaleString('id-ID')}</td></tr>`;
-
-                a.innerHTML = `
-                    <div style="font-family:'Courier New', Courier, monospace; width:320px; margin:auto; border:1px solid #e2e8f0; padding:20px; background:#fff;">
-                        <div style="text-align:center; margin-bottom:15px;">
-                            <h2 style="margin:0; font-size:22px; font-weight:900;">MOTOCARE</h2>
-                            <p style="margin:0; font-size:10px; color:#64748b;">WORKSHOP MANAGEMENT</p>
-                        </div>
-                        <div style="font-size:12px; border-top:1px solid #000; border-bottom:1px solid #000; padding:10px 0; margin-bottom:15px;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>INV:</span> <b>#${tr.id}</b></div>
-                            ${headerHTML}
-                        </div>
-                        <table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:15px;">
-                            ${jasaHTML}
-                            ${it}
-                        </table>
-                        <div style="display:flex; justify-content:space-between; font-weight:900; font-size:16px; border-top:2px solid #000; padding-top:10px;">
-                            <span>TOTAL BAYAR</span> <span>Rp ${tr.hitungTotal().toLocaleString('id-ID')}</span>
-                        </div>
-                        <div style="text-align:center; margin-top:30px; font-size:10px; color:#64748b;">* Terima kasih telah mempercayakan bengkel kami *</div>
-                    </div>`;
-                
-                a.classList.remove('hidden'); // Menampilkan secara eksplisit untuk cetak
-                setTimeout(() => { 
-                    window.print(); 
-                    a.innerHTML = ''; 
-                    a.classList.add('hidden'); // Menyembunyikan kembali
-                }, 500);
+                const isP = tr.motor.plat === '-';
+                tr.parts.forEach(p => it += `<tr style="border-bottom:1px dashed #ccc;"><td style="padding:6px 0;">${p.nama} <br><small>x${p.qty}</small></td><td style="text-align:right;">${app.formatRp.format(p.subtotal)}</td></tr>`);
+                let hH = isP ? `<div>INV: #${tr.id}</div><div>TGL: ${tr.tgl}</div><div>UMUM</div>` : `<div>INV: #${tr.id}</div><div>TGL: ${tr.tgl}</div><div>PLAT: ${tr.motor.plat}</div><div>NAMA: ${tr.motor.pemilik}</div>`;
+                a.innerHTML = `<div style="text-align:center;"><h2>MOTOCARE</h2><hr></div><div style="font-size:12px; border-bottom:1px solid #000; padding:10px 0;">${hH}</div><table style="width:100%; font-size:12px;">${!isP?`<tr><td>Jasa Mekanik</td><td style="text-align:right;">${app.formatRp.format(tr.jasa)}</td></tr>`:''}${it}</table><hr><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>TOTAL</span> <span>${app.formatRp.format(tr.hitungTotal())}</span></div>`;
+                a.classList.remove('hidden'); setTimeout(() => { window.print(); a.innerHTML = ''; a.classList.add('hidden'); }, 500);
             }
         };
 
