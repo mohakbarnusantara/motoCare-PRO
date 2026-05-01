@@ -245,21 +245,30 @@
             <form onsubmit="app.handleTransaksiSubmit(event)">
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
                     <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-fit">
-                        <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-3 border-b pb-4 text-sm uppercase tracking-widest">
-                            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">1</span> Detail Servis
-                        </h3>
+                        
+                        <!-- FITUR BARU: Toggle Beli Suku Cadang Saja -->
+                        <div class="flex items-center justify-between border-b pb-4 mb-6">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-3 text-sm uppercase tracking-widest">
+                                <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">1</span> Detail Servis
+                            </h3>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="kasir-parts-only" class="w-4 h-4 text-blue-600 bg-slate-100 border-slate-300 rounded focus:ring-blue-500" onchange="app.toggleKasirMode()">
+                                <span class="text-[11px] font-bold text-slate-500">BELI SUKU CADANG SAJA</span>
+                            </label>
+                        </div>
+                        
                         <div class="space-y-4">
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase">Pilih Motor (Hanya Status "PROSES")</label>
-                                <select id="kasir-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none focus:border-blue-500 font-bold text-blue-600"></select>
+                                <select id="kasir-motor-id" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none focus:border-blue-500 font-bold text-blue-600 transition-colors"></select>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase">Hasil Pengerjaan Mekanik</label>
-                                <textarea id="kasir-deskripsi" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none h-24" placeholder="Detail hasil servis..."></textarea>
+                                <textarea id="kasir-deskripsi" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none h-24 transition-colors" placeholder="Detail hasil servis..."></textarea>
                             </div>
                             <div class="grid grid-cols-2 gap-5">
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal</label><input type="date" id="kasir-tanggal" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none font-medium"></div>
-                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Biaya Jasa (Rp)</label><input type="number" id="kasir-jasa" value="0" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 font-black text-blue-600 text-lg outline-none"></div>
+                                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Biaya Jasa (Rp)</label><input type="number" id="kasir-jasa" value="0" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 font-black text-blue-600 text-lg outline-none transition-colors"></div>
                             </div>
                         </div>
                     </div>
@@ -488,7 +497,7 @@
                 this.motors.find(x => x.id == item.motorId).statusTerakhir = 'PROSES';
                 
                 this.save();
-                ui.nav('kasir');
+                // Tetap di halaman antrian, jangan auto navigate ke kasir.
                 document.getElementById('kasir-motor-id').value = item.motorId;
                 document.getElementById('kasir-deskripsi').value = item.keluhan;
                 this.refreshUI();
@@ -551,6 +560,47 @@
                 if(this.restokStack.length > 8) this.restokStack.shift();
             },
 
+            // LOGIKA TOGGLE KASIR (FITUR BARU)
+            toggleKasirMode() {
+                const isPartsOnly = document.getElementById('kasir-parts-only').checked;
+                const motorSelect = document.getElementById('kasir-motor-id');
+                const deskripsiArea = document.getElementById('kasir-deskripsi');
+                const jasaInput = document.getElementById('kasir-jasa');
+
+                if(isPartsOnly) {
+                    motorSelect.removeAttribute('required');
+                    motorSelect.disabled = true;
+                    motorSelect.value = '';
+                    
+                    deskripsiArea.removeAttribute('required');
+                    deskripsiArea.disabled = true;
+                    deskripsiArea.value = 'Pembelian Suku Cadang Langsung (Tanpa Jasa Servis)';
+                    
+                    jasaInput.disabled = true;
+                    jasaInput.value = 0;
+                    
+                    // Styling nonaktif visual
+                    motorSelect.classList.add('bg-slate-200', 'text-slate-400');
+                    deskripsiArea.classList.add('bg-slate-200', 'text-slate-400');
+                    jasaInput.classList.add('bg-slate-200', 'text-slate-400');
+                } else {
+                    motorSelect.setAttribute('required', 'true');
+                    motorSelect.disabled = false;
+                    
+                    deskripsiArea.setAttribute('required', 'true');
+                    deskripsiArea.disabled = false;
+                    deskripsiArea.value = '';
+                    
+                    jasaInput.disabled = false;
+                    
+                    // Kembalikan style
+                    motorSelect.classList.remove('bg-slate-200', 'text-slate-400');
+                    deskripsiArea.classList.remove('bg-slate-200', 'text-slate-400');
+                    jasaInput.classList.remove('bg-slate-200', 'text-slate-400');
+                }
+                ui.renderCart();
+            },
+
             // KERANJANG PINTAR (Merge & Delete)
             tambahKeKeranjang() {
                 const id = document.getElementById('kasir-pilih-part').value;
@@ -578,28 +628,44 @@
 
             handleTransaksiSubmit(e) {
                 e.preventDefault();
+                const isPartsOnly = document.getElementById('kasir-parts-only').checked;
+
                 const mId = document.getElementById('kasir-motor-id').value;
                 const tgl = document.getElementById('kasir-tanggal').value;
                 const dsk = document.getElementById('kasir-deskripsi').value;
                 const jsa = document.getElementById('kasir-jasa').value;
-                if(!mId) return alert("Pilih motor status PROSES!");
+                
+                if(!isPartsOnly && !mId) return alert("Pilih motor status PROSES!");
+                if(this.cart.length === 0 && jsa == 0) return alert("Keranjang Kosong & Jasa Rp0.");
 
-                const m = this.motors.find(x => x.id == mId);
+                let m;
+                if (isPartsOnly) {
+                    // Buat Objek Motor Sementara jika Beli Langsung
+                    m = new Motor('-', '-', '-', 'Pelanggan Umum', '-');
+                } else {
+                    m = this.motors.find(x => x.id == mId);
+                    // Update Status Akhir: PROSES -> SELESAI
+                    const qItem = this.antrian.find(a => a.motorId == mId && a.status == 'PROSES');
+                    if(qItem) qItem.status = 'SELESAI';
+                    m.statusTerakhir = 'SELESAI';
+                }
                 
                 // Potong stok real dari gudang (Encapsulation)
                 this.cart.forEach(c => {
                     this.parts.find(x => x.id == c.id).kurang(c.qty);
                 });
 
-                // Update Status Akhir: PROSES -> SELESAI
-                const qItem = this.antrian.find(a => a.motorId == mId && a.status == 'PROSES');
-                if(qItem) qItem.status = 'SELESAI';
-                m.statusTerakhir = 'SELESAI';
-
                 const trx = new TransaksiServis(m, tgl, dsk, jsa, [...this.cart]);
                 this.riwayat.unshift(trx);
                 this.cart = [];
-                this.save(); e.target.reset(); this.refreshUI();
+                this.save(); 
+                e.target.reset(); 
+                
+                // Reset mode form kasir
+                document.getElementById('kasir-parts-only').checked = false;
+                this.toggleKasirMode();
+
+                this.refreshUI();
                 ui.printStruk(trx);
                 ui.nav('dashboard');
             },
@@ -642,6 +708,9 @@
                     b.classList.remove('active');
                     if(b.dataset.id === id) b.classList.add('active');
                 });
+                if(id === 'kasir') {
+                    document.getElementById('kasir-tanggal').valueAsDate = new Date();
+                }
                 app.refreshUI();
             },
 
@@ -663,9 +732,10 @@
                 const tb = document.getElementById('table-recent-servis'); tb.innerHTML = '';
                 if(app.riwayat.length === 0) tb.innerHTML = '<tr><td colspan="5" class="text-center py-6 italic text-slate-300">Belum ada aktivitas.</td></tr>';
                 app.riwayat.slice(0,5).forEach(r => {
+                    const platPrint = r.motor.plat === '-' ? 'Beli Langsung' : r.motor.plat;
                     tb.innerHTML += `<tr class="border-b hover:bg-slate-50 transition-colors">
                         <td class="px-6 py-4">${r.tgl}</td>
-                        <td class="px-6 py-4 font-black text-slate-700">${r.motor.plat}</td>
+                        <td class="px-6 py-4 font-black text-slate-700">${platPrint}</td>
                         <td class="px-6 py-4 font-bold text-slate-500">${r.motor.pemilik}</td>
                         <td class="px-6 py-4 font-black text-blue-600">Rp ${r.hitungTotal().toLocaleString('id-ID')}</td>
                         <td class="px-6 py-4 text-center"><span class="status-badge status-selesai">SELESAI</span></td>
@@ -764,8 +834,41 @@
 
             printStruk(tr) {
                 const a = document.getElementById('invoice-print'); let it = '';
-                tr.parts.forEach(p => it += `<tr style="border-bottom:1px dashed #ccc;"><td style="padding:6px 0;">${p.nama} x${p.qty}</td><td style="text-align:right;">Rp ${p.subtotal.toLocaleString()}</td></tr>`);
-                a.innerHTML = `<div style="text-align:center;"><h2>MOTOCARE</h2><small>System Management</small><hr></div><p style="font-size:12px;">Invoice: #${tr.id}<br>Tgl: ${tr.tgl}<br>Motor: ${tr.motor.plat} / ${tr.motor.pemilik}</p><table style="width:100%; font-size:12px; border-top:1px solid #000;"><tr><td style="padding:6px 0;">Jasa: ${tr.desk}</td><td style="text-align:right;">Rp ${tr.jasa.toLocaleString()}</td></tr>${it}</table><hr><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>TOTAL BAYAR:</span> <span>Rp ${tr.hitungTotal().toLocaleString()}</span></div><center><br><small>Terima Kasih!</small></center>`;
+                const isPartsOnly = tr.motor.plat === '-';
+
+                tr.parts.forEach(p => it += `<tr style="border-bottom:1px dashed #ccc;"><td style="padding:6px 0;">${p.nama} <br><span style="font-size:10px; color:#64748b;">x${p.qty} Pcs</span></td><td style="text-align:right; font-weight:bold;">Rp ${p.subtotal.toLocaleString('id-ID')}</td></tr>`);
+                
+                let headerHTML = '';
+                if(isPartsOnly) {
+                    headerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>TGL:</span> <b>${tr.tgl}</b></div>
+                                  <div style="display:flex; justify-content:space-between;"><span>PELANGGAN:</span> <b>UMUM (Pembelian Langsung)</b></div>`;
+                } else {
+                    headerHTML = `<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>TGL:</span> <b>${tr.tgl}</b></div>
+                                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>PLAT:</span> <b>${tr.motor.plat} (${tr.motor.merk})</b></div>
+                                  <div style="display:flex; justify-content:space-between;"><span>NAMA:</span> <b>${tr.motor.pemilik}</b></div>`;
+                }
+
+                let jasaHTML = isPartsOnly ? '' : `<tr style="border-bottom:1px solid #000;"><td style="padding:6px 0;">Jasa Mekanik: <br><span style="font-size:10px; color:#64748b;">${tr.desk}</span></td><td style="text-align:right; font-weight:bold; vertical-align:top; padding-top:6px;">Rp ${tr.jasa.toLocaleString('id-ID')}</td></tr>`;
+
+                a.innerHTML = `
+                    <div style="font-family:'Courier New', Courier, monospace; width:320px; margin:auto; border:1px solid #e2e8f0; padding:20px; background:#fff;">
+                        <div style="text-align:center; margin-bottom:15px;">
+                            <h2 style="margin:0; font-size:22px; font-weight:900;">MOTOCARE</h2>
+                            <p style="margin:0; font-size:10px; color:#64748b;">WORKSHOP MANAGEMENT</p>
+                        </div>
+                        <div style="font-size:12px; border-top:1px solid #000; border-bottom:1px solid #000; padding:10px 0; margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>INV:</span> <b>#${tr.id}</b></div>
+                            ${headerHTML}
+                        </div>
+                        <table style="width:100%; font-size:12px; border-collapse:collapse; margin-bottom:15px;">
+                            ${jasaHTML}
+                            ${it}
+                        </table>
+                        <div style="display:flex; justify-content:space-between; font-weight:900; font-size:16px; border-top:2px solid #000; padding-top:10px;">
+                            <span>TOTAL BAYAR</span> <span>Rp ${tr.hitungTotal().toLocaleString('id-ID')}</span>
+                        </div>
+                        <div style="text-align:center; margin-top:30px; font-size:10px; color:#64748b;">* Terima kasih telah mempercayakan bengkel kami *</div>
+                    </div>`;
                 
                 a.classList.remove('hidden'); // Menampilkan secara eksplisit untuk cetak
                 setTimeout(() => { 
