@@ -36,7 +36,6 @@
             #invoice-print { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; display: block !important; }
         }
 
-        /* Digital Clock Styles */
         #digital-clock {
             font-family: monospace;
             letter-spacing: 1px;
@@ -72,7 +71,6 @@
             </div>
         </div>
 
-        <!-- Digital Clock in Sidebar -->
         <div class="px-8 pb-4 mb-4 border-b border-slate-800">
             <div id="digital-clock" class="text-blue-400 font-bold text-2xl">00:00:00</div>
             <div id="current-date" class="text-slate-500 text-[10px] font-bold uppercase mt-1">1 Januari 2026</div>
@@ -140,7 +138,7 @@
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b">
                                 <tr>
-                                    <th class="px-6 py-4">Waktu</th> <!-- Berubah dari Tgl jadi Waktu -->
+                                    <th class="px-6 py-4">Waktu</th>
                                     <th class="px-6 py-4 text-center">Plat</th>
                                     <th class="px-6 py-4 text-center">Pemilik</th> 
                                     <th class="px-6 py-4 text-center">Biaya</th>
@@ -268,15 +266,18 @@
                     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-                                <tr><th class="px-6 py-4">Item Sparepart</th><th class="px-6 py-4 text-center">Stok</th><th class="px-6 py-4 text-right">Harga</th><th class="px-6 py-4 text-center">Aksi</th></tr>
+                                <tr><th class="px-6 py-4">Item Sparepart</th><th class="px-6 py-4 text-center">Stok Fisik</th><th class="px-6 py-4 text-right">Harga Satuan</th><th class="px-6 py-4 text-center">Aksi</th></tr>
                             </thead>
                             <tbody id="table-stok-data" class="text-sm font-medium"></tbody>
                         </table>
                     </div>
                 </div>
-                <div class="bg-slate-900 rounded-3xl p-8 text-white h-fit shadow-2xl relative overflow-hidden">
-                    <h3 class="font-bold text-blue-400 mb-6 border-b border-slate-700/50 pb-5 flex items-center gap-2 relative z-10"><i class="fa-solid fa-layer-group"></i> Riwayat Restok (LIFO)</h3>
-                    <div id="stack-lifo-container" class="space-y-6 relative z-10"></div>
+                <div class="bg-slate-900 rounded-3xl p-8 text-white h-fit shadow-2xl relative overflow-hidden max-h-[600px] overflow-y-auto">
+                    <div class="absolute -right-5 -top-5 opacity-10 text-9xl rotate-12"><i class="fa-solid fa-boxes-stacked"></i></div>
+                    <h3 class="font-bold text-blue-400 mb-6 border-b border-slate-700/50 pb-5 flex items-center gap-2 relative z-10">
+                        <i class="fa-solid fa-history"></i> Log Keluar Masuk Barang
+                    </h3>
+                    <div id="stack-lifo-container" class="space-y-6 relative z-10 min-h-[150px]"></div>
                 </div>
             </div>
         </section>
@@ -309,7 +310,6 @@
                             <div class="grid grid-cols-2 gap-5">
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal & Jam</label>
-                                    <!-- Changed to datetime-local to record time -->
                                     <input type="datetime-local" id="kasir-tanggal" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 outline-none font-medium">
                                 </div>
                                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">Biaya Jasa (Rp)</label><input type="number" id="kasir-jasa" value="0" required class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mt-1 font-black text-blue-600 text-lg outline-none"></div>
@@ -417,7 +417,6 @@
             constructor(motor, tglStr, desk, jasa, parts, id=null) {
                 super(id);
                 this.motor = motor;
-                // tglStr format: YYYY-MM-DDTHH:MM
                 this.tglRaw = tglStr;
                 this.desk = desk;
                 this.jasa = parseInt(jasa);
@@ -457,13 +456,11 @@
             startClock() {
                 const clockEl = document.getElementById('digital-clock');
                 const dateEl = document.getElementById('current-date');
-                
                 const update = () => {
                     const now = new Date();
                     clockEl.innerText = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
                     dateEl.innerText = now.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
                 };
-                
                 setInterval(update, 1000);
                 update();
             },
@@ -519,7 +516,6 @@
                 e.preventDefault();
                 const mId = document.getElementById('antrian-motor-id').value, kel = document.getElementById('antrian-keluhan').value;
                 if(this.antrian.find(a => a.motorId == mId && a.status != 'SELESAI')) return alert("Motor sudah dalam antrian!");
-                
                 const nomorAntrian = this.antrian.length + 1;
                 this.antrian.push(new AntrianItem(mId, kel, nomorAntrian));
                 this.motors.find(x => x.id == mId).statusTerakhir = 'ANTRIAN';
@@ -545,7 +541,7 @@
                 } else {
                     const item = new SukuCadang(n, s, h);
                     this.parts.push(item);
-                    this.pushRestok(n, s);
+                    this.pushInventoryLog(n, s, 'MASUK');
                 }
                 this.save(); ui.resetPartForm(); this.refreshUI();
             },
@@ -557,7 +553,6 @@
                 document.getElementById('part-nama').value = p.nama;
                 document.getElementById('part-stok').value = p.stok;
                 document.getElementById('part-harga').value = p.harga;
-                
                 document.getElementById('btn-save-part').innerText = "Update";
                 document.getElementById('btn-cancel-part').classList.remove('hidden');
             },
@@ -567,13 +562,21 @@
             prosesRestok() {
                 const id = document.getElementById('restok-id').value, qty = document.getElementById('restok-qty').value;
                 const p = this.parts.find(x => x.id == id);
-                p.tambah(qty); this.pushRestok(p.nama, qty);
+                p.tambah(qty); 
+                this.pushInventoryLog(p.nama, qty, 'MASUK');
                 this.save(); ui.closeStokModal(); this.refreshUI();
             },
 
-            pushRestok(nama, qty) {
-                this.restokStack.push({nama, qty, waktu: new Date().toLocaleTimeString('id-ID')});
-                if(this.restokStack.length > 8) this.restokStack.shift();
+            /** FITUR: Riwayat Keluar Masuk (Inventory Log) */
+            pushInventoryLog(nama, qty, tipe) {
+                const entry = {
+                    nama, 
+                    qty, 
+                    tipe, // 'MASUK' atau 'KELUAR'
+                    waktu: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', second:'2-digit'})
+                };
+                this.restokStack.push(entry);
+                if(this.restokStack.length > 20) this.restokStack.shift(); // Simpan 20 log terakhir
             },
 
             toggleKasirMode() {
@@ -615,42 +618,56 @@
                     if(qI) qI.status = 'SELESAI';
                     m.statusTerakhir = 'SELESAI';
                 }
-                this.cart.forEach(c => this.parts.find(x => x.id == c.id).kurang(c.qty));
+                
+                // Proses Pengurangan Stok & Catat Log KELUAR
+                this.cart.forEach(c => {
+                    this.parts.find(x => x.id == c.id).kurang(c.qty);
+                    this.pushInventoryLog(c.nama, c.qty, 'KELUAR');
+                });
                 
                 const trx = new TransaksiServis(m, tglStr, dsk, jsa, [...this.cart]);
-                this.riwayat.unshift(trx); this.cart = []; this.save(); e.target.reset(); document.getElementById('kasir-parts-only').checked = false; this.toggleKasirMode(); this.refreshUI(); ui.printStruk(trx); ui.nav('dashboard');
+                this.riwayat.unshift(trx); 
+                this.cart = []; 
+                this.save(); 
+                e.target.reset(); 
+                document.getElementById('kasir-parts-only').checked = false; 
+                this.toggleKasirMode(); 
+                this.refreshUI(); 
+                ui.printStruk(trx); 
+                ui.nav('dashboard');
             },
 
             cetakUlang(id) { const tr = this.riwayat.find(r => r.id == id); if(tr) ui.printStruk(tr); },
 
             refreshUI() { ui.renderAll(); },
             save() {
-                localStorage.setItem('m_motors_v4_p1', JSON.stringify(this.motors));
-                localStorage.setItem('m_parts_v4_p1', JSON.stringify(this.parts));
-                localStorage.setItem('m_queue_v4_p1', JSON.stringify(this.antrian));
-                localStorage.setItem('m_stack_v4_p1', JSON.stringify(this.restokStack));
-                localStorage.setItem('m_trx_v4_p1', JSON.stringify(this.riwayat));
+                localStorage.setItem('m_motors_v4_pro', JSON.stringify(this.motors));
+                localStorage.setItem('m_parts_v4_pro', JSON.stringify(this.parts));
+                localStorage.setItem('m_queue_v4_pro', JSON.stringify(this.antrian));
+                localStorage.setItem('m_stack_v4_pro', JSON.stringify(this.restokStack));
+                localStorage.setItem('m_trx_v4_pro', JSON.stringify(this.riwayat));
             },
             load() {
-                const m = JSON.parse(localStorage.getItem('m_motors_v4_p1')) || [];
+                const m = JSON.parse(localStorage.getItem('m_motors_v4_pro')) || [];
                 this.motors = m.map(x => { const o = new Motor(x.plat, x.merk, x.tipe, x.pemilik, x.tahun, x.id); o.statusTerakhir = x.statusTerakhir; return o; });
-                const p = JSON.parse(localStorage.getItem('m_parts_v4_p1')) || [];
+                const p = JSON.parse(localStorage.getItem('m_parts_v4_pro')) || [];
                 this.parts = p.map(x => new SukuCadang(x.nama, x._stok, x._harga, x.id));
-                this.antrian = JSON.parse(localStorage.getItem('m_queue_v4_p1')) || [];
-                this.restokStack = JSON.parse(localStorage.getItem('m_stack_v4_p1')) || [];
-                const r = JSON.parse(localStorage.getItem('m_trx_v4_p1')) || [];
+                this.antrian = JSON.parse(localStorage.getItem('m_queue_v4_pro')) || [];
+                this.restokStack = JSON.parse(localStorage.getItem('m_stack_v4_pro')) || [];
+                const r = JSON.parse(localStorage.getItem('m_trx_v4_pro')) || [];
                 this.riwayat = r.map(x => { const c = x.parts.map(cp => new ItemKeranjang(cp.id, cp.nama, cp.qty, cp.harga)); return new TransaksiServis(x.motor, x.tglRaw, x.desk, x.jasa, c, x.id); });
             }
         };
 
+        /**
+         * --- VIEW ENGINE (UI) ---
+         */
         const ui = {
             nav(id) {
                 document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
                 document.querySelectorAll('.sidebar-btn').forEach(b => { b.classList.remove('active'); if(b.dataset.id === id) b.classList.add('active'); });
-                
                 if(id === 'kasir') {
-                    // Set default to current local datetime
                     const now = new Date();
                     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
                     document.getElementById('kasir-tanggal').value = now.toISOString().slice(0, 16);
@@ -703,20 +720,34 @@
                     const lw = p.stok < 5;
                     tb.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 font-bold text-slate-700">${p.nama}</td><td class="px-6 py-4 text-center font-black ${lw ? 'text-red-500 bg-red-50 rounded-xl' : 'text-slate-800'}">${p.stok}</td><td class="px-6 py-4 text-right font-bold text-blue-600">${app.formatRp.format(p.harga)}</td><td class="px-6 py-4 text-center flex justify-center gap-2"><button onclick="app.editPart('${p.id}')" class="text-blue-500 hover:scale-110"><i class="fa-solid fa-pen"></i></button><button onclick="ui.openStokModal('${p.id}','${p.nama}')" class="text-green-600 hover:scale-110"><i class="fa-solid fa-plus"></i></button><button onclick="app.hapusPart('${p.id}')" class="text-red-500 hover:scale-110"><i class="fa-solid fa-trash"></i></button></td></tr>`;
                 });
+                
+                // RENDER: Inventory Log (MASUK & KELUAR)
                 const lf = document.getElementById('stack-lifo-container'); lf.innerHTML = '';
-                [...app.restokStack].reverse().forEach(x => { lf.innerHTML += `<div class="relative pl-6 border-l-2 border-slate-700/50 pb-4 group"><div class="absolute -left-[7px] top-1 w-3 h-3 bg-blue-400 rounded-full border-2 border-slate-900"></div><span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">${x.waktu}</span><span class="text-sm font-black text-blue-200">+${x.qty} ${x.nama}</span></div>`; });
+                if(app.restokStack.length === 0) lf.innerHTML = `<p class="text-slate-500 text-sm italic">Belum ada riwayat aktivitas gudang.</p>`;
+                
+                [...app.restokStack].reverse().forEach(x => {
+                    const isMasuk = x.tipe === 'MASUK';
+                    lf.innerHTML += `
+                        <div class="relative pl-6 border-l-2 ${isMasuk ? 'border-green-500/50' : 'border-red-500/50'} pb-4 group transition-all">
+                            <div class="absolute -left-[7px] top-1 w-3 h-3 rounded-full border-2 border-slate-900 ${isMasuk ? 'bg-green-500' : 'bg-red-500'}"></div>
+                            <span class="block text-[10px] text-slate-400 font-bold uppercase mb-1">${x.waktu}</span>
+                            <span class="text-sm font-black transition-colors ${isMasuk ? 'text-green-400' : 'text-red-400'}">
+                                ${isMasuk ? '+' : '-'}${x.qty} ${x.nama}
+                            </span>
+                            <span class="text-[9px] text-slate-500 block uppercase font-bold tracking-tighter">${x.tipe}</span>
+                        </div>
+                    `;
+                });
             },
             renderSelects() {
                 const sa = document.getElementById('antrian-motor-id'); sa.innerHTML = '<option value="">-- Pilih Motor --</option>';
                 app.motors.forEach(m => sa.innerHTML += `<option value="${m.id}">${m.plat} (${m.pemilik})</option>`);
-                
                 const sk = document.getElementById('kasir-motor-id'); sk.innerHTML = '<option value="">-- Pilih Motor Proses --</option>';
                 app.antrian.filter(a => a.status === 'PROSES').forEach(node => { 
                     const m = app.motors.find(x => x.id == node.motorId); 
                     const antrianLabel = `#${node.nomor.toString().padStart(2, '0')}`;
                     sk.innerHTML += `<option value="${m.id}">${antrianLabel} | ${m.plat} - ${m.pemilik}</option>`; 
                 });
-
                 const sp = document.getElementById('kasir-pilih-part'); sp.innerHTML = '<option value="">-- Cari Suku Cadang --</option>';
                 app.parts.forEach(p => sp.innerHTML += `<option value="${p.id}">${p.nama} (${app.formatRp.format(p.harga)})</option>`);
             },
@@ -735,10 +766,7 @@
                 const a = document.getElementById('invoice-print'); let it = '';
                 const isP = tr.motor.plat === '-';
                 tr.parts.forEach(p => it += `<tr style="border-bottom:1px dashed #ccc;"><td style="padding:6px 0;">${p.nama} <br><small>x${p.qty}</small></td><td style="text-align:right; font-weight:bold;">${app.formatRp.format(p.subtotal)}</td></tr>`);
-                
-                // Detailed header for print including time
                 let hH = isP ? `<div>INV: #${tr.id}</div><div>WAKTU: ${tr.formatWaktu}</div><div>PELANGGAN: UMUM</div>` : `<div>INV: #${tr.id}</div><div>WAKTU: ${tr.formatWaktu}</div><div>PLAT: ${tr.motor.plat}</div><div>NAMA: ${tr.motor.pemilik}</div>`;
-                
                 a.innerHTML = `<div style="text-align:center;"><h2>MOTOCARE</h2><small>System Management</small><hr></div><div style="font-size:12px; border-bottom:1px solid #000; padding:10px 0;">${hH}</div><table style="width:100%; font-size:12px;">${!isP?`<tr><td style="padding:6px 0;">Jasa Mekanik: <br><small>${tr.desk}</small></td><td style="text-align:right;">${app.formatRp.format(tr.jasa)}</td></tr>`:''}${it}</table><hr><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>TOTAL</span> <span>${app.formatRp.format(tr.hitungTotal())}</span></div><center><br><small>Terima Kasih!</small></center>`;
                 a.classList.remove('hidden'); setTimeout(() => { window.print(); a.innerHTML = ''; a.classList.add('hidden'); }, 500);
             }
