@@ -172,7 +172,7 @@
 
         <!-- DATA MOTOR -->
         <section id="motor" class="page-section">
-            <h2 class="text-3xl font-black text-slate-800 mb-8">Data Motor</h2>
+            <h2 class="text-3xl font-black text-slate-800 mb-8">Data Master Motor</h2>
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-fit">
                     <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2" id="motor-form-title"><i class="fa-solid fa-plus-circle text-blue-500"></i> Tambah Motor Baru</h3>
@@ -744,10 +744,25 @@
                         m3.statusTerakhir = 'SELESAI';
                         this.motors.push(m3);
 
-                        // Suku Cadang
-                        this.parts.push(new SukuCadang('Oli Mesin MPX 2', 20, 55000));
-                        this.parts.push(new SukuCadang('Kampas Rem Depan Honda', 15, 45000));
-                        this.parts.push(new SukuCadang('Busi NGK', 30, 20000));
+                        // Suku Cadang (Data Realistis)
+                        this.parts.push(new SukuCadang('Oli Mesin MPX 2 0.8L', 45, 55000));
+                        this.parts.push(new SukuCadang('Kampas Rem Depan Cakram Honda', 25, 45000));
+                        this.parts.push(new SukuCadang('Busi NGK CPR9EA-9', 60, 20000));
+                        this.parts.push(new SukuCadang('Oli Mesin Yamalube Sport 1L', 30, 65000));
+                        this.parts.push(new SukuCadang('Oli Gardan AHM', 50, 15000));
+                        this.parts.push(new SukuCadang('Kampas Rem Belakang Tromol Yamaha', 20, 40000));
+                        this.parts.push(new SukuCadang('Busi Denso U27EPR-N9', 40, 22000));
+                        this.parts.push(new SukuCadang('V-Belt Beat FI / Scoopy', 15, 120000));
+                        this.parts.push(new SukuCadang('V-Belt NMAX 155', 10, 150000));
+                        this.parts.push(new SukuCadang('Aki Kering GS Astra GTZ4V', 8, 210000));
+                        this.parts.push(new SukuCadang('Aki Yuasa YTZ5S', 12, 195000));
+                        this.parts.push(new SukuCadang('Ban Luar IRC 80/90-14 Tubeless', 10, 185000));
+                        this.parts.push(new SukuCadang('Ban Luar Michelin 90/90-14', 6, 250000));
+                        this.parts.push(new SukuCadang('Filter Udara Vario 125/150', 18, 45000));
+                        this.parts.push(new SukuCadang('Bohlam Lampu Depan LED Osram', 20, 65000));
+                        this.parts.push(new SukuCadang('Cairan Pendingin (Radiator Coolant) 1L', 35, 35000));
+                        this.parts.push(new SukuCadang('Gear Set Supra X 125', 5, 175000));
+                        this.parts.push(new SukuCadang('Cairan Pembersih Injektor', 25, 25000));
 
                         // Antrian 1 (Proses)
                         const a1 = new AntrianItem(m1.id, 'Servis rutin dan ganti oli mesin', 1);
