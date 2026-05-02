@@ -353,6 +353,22 @@
         </div>
     </div>
 
+    <!-- DETAIL TRANSAKSI MODAL -->
+    <div id="modal-detail-transaksi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110] hidden items-center justify-center transition-opacity">
+        <div class="bg-white p-8 rounded-3xl w-[450px] shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-xl text-slate-800">Detail Transaksi</h3>
+                <button onclick="ui.closeDetailTransaksi()" class="text-slate-400 hover:text-red-500 transition-all"><i class="fa-solid fa-times text-xl"></i></button>
+            </div>
+            <div id="detail-transaksi-content" class="overflow-y-auto pr-2 space-y-4 text-sm text-slate-600">
+                <!-- Konten dinamis di-inject dari JS -->
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-100">
+                <button onclick="ui.closeDetailTransaksi()" class="w-full py-3.5 bg-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-200 transition-all">Tutup Detail</button>
+            </div>
+        </div>
+    </div>
+
     <!-- INVOICE PRINT -->
     <div id="invoice-print" class="hidden bg-white p-8 font-mono text-sm max-w-md mx-auto border border-dashed border-gray-300"></div>
 
@@ -836,14 +852,14 @@
                 const tbS = document.getElementById('table-recent-servis'); tbS.innerHTML = '';
                 if(sH.length === 0) tbS.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-400 italic">Belum ada data</td></tr>`;
                 sH.slice(0,10).forEach(r => {
-                    tbS.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 text-[11px]">${r.formatWaktu}</td><td class="px-6 py-4 font-black uppercase text-center">${r.motor.plat}</td><td class="px-6 py-4 font-bold text-slate-500 capitalize text-center">${r.motor.pemilik}</td><td class="px-6 py-4 font-black text-blue-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-blue-500"><i class="fa-solid fa-print"></i></button></td></tr>`;
+                    tbS.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 text-[11px]">${r.formatWaktu}</td><td class="px-6 py-4 font-black uppercase text-center">${r.motor.plat}</td><td class="px-6 py-4 font-bold text-slate-500 capitalize text-center">${r.motor.pemilik}</td><td class="px-6 py-4 font-black text-blue-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="ui.showDetailTransaksi('${r.id}')" class="text-slate-400 hover:text-blue-500 mr-3" title="Detail"><i class="fa-solid fa-eye"></i></button><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-green-500" title="Cetak Ulang"><i class="fa-solid fa-print"></i></button></td></tr>`;
                 });
 
                 const tbD = document.getElementById('table-direct-purchase'); tbD.innerHTML = '';
                 if(dH.length === 0) tbD.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400 italic">Belum ada data</td></tr>`;
                 dH.slice(0,10).forEach(r => {
                     const iN = r.parts.map(p => p.nama).join(', ');
-                    tbD.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 text-[11px]">${r.formatWaktu}</td><td class="px-6 py-4 max-w-[200px] truncate text-center">${iN}</td><td class="px-6 py-4 font-black text-emerald-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-emerald-500"><i class="fa-solid fa-print"></i></button></td></tr>`;
+                    tbD.innerHTML += `<tr class="border-b hover:bg-slate-50"><td class="px-6 py-4 text-[11px]">${r.formatWaktu}</td><td class="px-6 py-4 max-w-[200px] truncate text-center">${iN}</td><td class="px-6 py-4 font-black text-emerald-600 text-center">${app.formatRp.format(r.hitungTotal())}</td><td class="px-6 py-4 text-center"><button onclick="ui.showDetailTransaksi('${r.id}')" class="text-slate-400 hover:text-blue-500 mr-3" title="Detail"><i class="fa-solid fa-eye"></i></button><button onclick="app.cetakUlang('${r.id}')" class="text-slate-400 hover:text-emerald-500" title="Cetak Ulang"><i class="fa-solid fa-print"></i></button></td></tr>`;
                 });
             },
             renderMotors() {
@@ -913,6 +929,56 @@
             resetPartForm() { document.getElementById('part-id-edit').value = ''; document.getElementById('part-nama').value = ''; document.getElementById('part-stok').value = ''; document.getElementById('part-harga').value = ''; document.getElementById('btn-save-part').innerText = "Tambah"; document.getElementById('btn-cancel-part').classList.add('hidden'); },
             openStokModal(id, nm) { document.getElementById('restok-id').value = id; document.getElementById('restok-label').innerText = nm; document.getElementById('modal-stok').classList.replace('hidden','flex'); },
             closeStokModal() { document.getElementById('modal-stok').classList.replace('flex','hidden'); },
+            showDetailTransaksi(id) {
+                const tr = app.riwayat.find(r => r.id == id);
+                if(!tr) return;
+
+                const isP = tr.motor.plat === '-';
+                let partsHtml = '';
+                if(tr.parts.length > 0) {
+                    partsHtml = `<div class="mt-4"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1">Suku Cadang Dibeli</p><ul class="space-y-2">`;
+                    tr.parts.forEach(p => {
+                        partsHtml += `<li class="flex justify-between items-center border-b border-dashed border-slate-100 pb-2"><div class="flex flex-col"><span class="font-bold text-slate-700">${p.nama}</span><span class="text-[10px] bg-blue-50 w-fit text-blue-600 px-1.5 py-0.5 rounded font-black mt-1">x ${p.qty} item</span></div> <span class="font-black text-slate-800">${app.formatRp.format(p.subtotal)}</span></li>`;
+                    });
+                    partsHtml += `</ul></div>`;
+                } else {
+                    partsHtml = `<div class="mt-4"><p class="text-[10px] font-bold text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1">Suku Cadang Dibeli</p><p class="text-xs italic text-slate-400">- Tidak ada pembelian suku cadang -</p></div>`;
+                }
+
+                const content = `
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4">
+                        <div class="flex justify-between mb-2"><span class="font-bold text-blue-400 text-xs">ID INVOICE</span> <span class="font-mono text-xs font-black text-blue-700">#${tr.id}</span></div>
+                        <div class="flex justify-between"><span class="font-bold text-blue-400 text-xs">WAKTU</span> <span class="text-xs font-black text-blue-700">${tr.formatWaktu}</span></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Informasi Pelanggan</p>
+                        ${isP ? `<p class="font-bold text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-100">Pelanggan Umum (Beli Langsung)</p>` : `<div class="bg-slate-50 p-3 rounded-lg border border-slate-100"><p class="font-black text-slate-800 uppercase text-lg mb-1">${tr.motor.plat}</p><p class="text-slate-500 font-medium text-xs capitalize"><i class="fa-solid fa-user mr-1 text-slate-400"></i> ${tr.motor.pemilik} &nbsp;|&nbsp; <i class="fa-solid fa-motorcycle mr-1 text-slate-400"></i> ${tr.motor.merk} ${tr.motor.tipe}</p></div>`}
+                    </div>
+
+                    ${!isP ? `<div class="mb-4">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Deskripsi / Keluhan</p>
+                        <p class="bg-amber-50 text-amber-800 p-3 rounded-lg border border-amber-100 italic text-sm font-medium">"${tr.desk}"</p>
+                        <div class="flex justify-between items-center mt-3 bg-slate-50 p-3 rounded-lg border border-slate-100"><span class="text-slate-500 text-xs font-bold uppercase">Biaya Jasa Mekanik</span> <span class="font-black text-slate-800">${app.formatRp.format(tr.jasa)}</span></div>
+                    </div>` : `<div class="mb-4">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Keterangan</p>
+                        <p class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-slate-700 italic text-sm font-medium">"${tr.desk}"</p>
+                    </div>`}
+
+                    ${partsHtml}
+
+                    <div class="mt-6 pt-4 border-t-2 border-dashed border-slate-200 flex justify-between items-center bg-green-50 p-4 rounded-xl border border-green-100">
+                        <span class="font-black text-green-700 text-sm">TOTAL KESELURUHAN</span>
+                        <span class="font-black text-green-600 text-xl">${app.formatRp.format(tr.hitungTotal())}</span>
+                    </div>
+                `;
+
+                document.getElementById('detail-transaksi-content').innerHTML = content;
+                document.getElementById('modal-detail-transaksi').classList.replace('hidden', 'flex');
+            },
+            closeDetailTransaksi() {
+                document.getElementById('modal-detail-transaksi').classList.replace('flex', 'hidden');
+            },
             printStruk(tr) {
                 const a = document.getElementById('invoice-print'); let it = '';
                 const isP = tr.motor.plat === '-';
